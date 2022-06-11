@@ -9,21 +9,11 @@ interface IERC20 {
     function balanceOf(address account) external view returns(uint256);
     function transfer(address recipient, uint256 amount) external returns(bool);
 
-    //Não implementados (ainda)
-    //function allowence(address owner, address spender) external view returns(uint256);
-    //function approve(address spender, uint256 amount) external returns(bool);
-    //function transferFrom(address sender, address recipient, uint256 amount) external returns(bool);
-
     //Implementado
     event Transfer(address from, address to, uint256 value);
-
-    //Não está implementado (ainda)
-    //event Approval(address owner, address spender, uint256 value);
-
 }
 
 contract TokenFullPower is IERC20 {
-
 
    // Enum
     enum Status { ACTIVE, PAUSED, CANCELLED } //ACTIVE=0, PAUSED=1, CANCELLED=2 -- uint8
@@ -37,26 +27,19 @@ contract TokenFullPower is IERC20 {
     address private owner;
     uint256 private maxSupply = 505;
  
- // Modifier
- modifier isOwner() {
+    // Modifier
+    modifier isOwner() {
         require(msg.sender == owner , "Sender is not owner!");
         _;
     }
 
-    mapping(address => uint256) public addressToBalance;
-
-    // Events
-   // event Transfer(address sender, address receiver, uint256 amount);
-  //  event status()
-   
+    mapping(address => uint256) public addressToBalance;   
  
     //Constructor
     constructor(uint256 TotaldeMoedas) {
         owner = msg.sender;
         totalSupply = TotaldeMoedas;
         addressToBalance[owner] = totalSupply;
-
-
     }
 
     //Public Functions
@@ -76,15 +59,9 @@ contract TokenFullPower is IERC20 {
         addressToBalance[msg.sender] = addressToBalance[msg.sender] - quantity;
         addressToBalance[receiver] = addressToBalance[receiver] + quantity;
         emit Transfer(msg.sender, receiver, quantity);
-    
-
         mint();
-
         return true;
     }
-
-
-
 
     function mint() private returns (uint256) {
         burn();
@@ -95,16 +72,13 @@ contract TokenFullPower is IERC20 {
 
     function burn() private {
          if(totalSupply >= 500){
-         totalSupply  -= addressToBalance[owner]/ 2;
-         addressToBalance[owner] -=  addressToBalance[owner]/2 ;
-        
+         totalSupply -= addressToBalance[owner]/ 2;
+         addressToBalance[owner] -= addressToBalance[owner]/2;        
         }
     }
 
     function pausable() public isOwner {
         status = Status.PAUSED;
-
-        
     }
 
     function activeCancelled (uint8 newStatus) public isOwner {
@@ -114,10 +88,11 @@ contract TokenFullPower is IERC20 {
         else if(newStatus == 2){
             status = Status.CANCELLED;
         }
-      
     }
 
-
-
-
+    // Kill
+    function kill() public isOwner {
+        require(status == Status.CANCELLED, "Contract not cancelled.");
+        selfdestruct(payable(owner));
+    }
 }
