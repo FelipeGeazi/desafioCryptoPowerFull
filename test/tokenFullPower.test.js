@@ -2,96 +2,111 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { BigNumber } = require("ethers");
 
-describe("Token", function () {
-  it("Should return the correct total supply of the contract", async function () {
-    const Token = await ethers.getContractFactory("CryptoToken");
-    const token = await Token.deploy(480);
+describe("Token", function() {
+    it("Should return the correct total supply of the contract", async function() {
+        const Token = await ethers.getContractFactory("TokenFullPower");
+        const token = await Token.deploy(480);
 
-    const totalSupplyExpected = 480;
-    const totalSupplyResult = await token.getTotalSupply();
+        const totalSupplyExpected = 480;
+        const totalSupplyResult = await token.getTotalSupply();
 
-    expect(totalSupplyExpected).to.equal(totalSupplyResult);
-  });
+        expect(totalSupplyExpected).to.equal(totalSupplyResult);
+    });
 
-  it("Should return the correct balance", async function () {
-    const [ owner, wallet1 ] = await ethers.getSigners();
-    const Token = await ethers.getContractFactory("CryptoToken", owner);
-    const token = await Token.deploy(480);
+    it("Should return the correct balance", async function() {
+        const [owner, wallet1] = await ethers.getSigners();
+        const Token = await ethers.getContractFactory("TokenFullPower", owner);
+        const token = await Token.deploy(480);
 
-    const ownerBalanceExpected = 480;
-    const ownerBalance = await token.balanceOf(owner.address);
+        const ownerBalanceExpected = 480;
+        const ownerBalance = await token.balanceOf(owner.address);
 
-    expect(ownerBalanceExpected).to.equal(ownerBalance);
+        expect(ownerBalanceExpected).to.equal(ownerBalance);
 
-    const wallet1BalanceExpected = 0;
-    const wallet1Balance = await token.balanceOf(wallet1.address);
+        const wallet1BalanceExpected = 0;
+        const wallet1Balance = await token.balanceOf(wallet1.address);
 
-    expect(wallet1BalanceExpected).to.equal(wallet1Balance);
-  });
+        expect(wallet1BalanceExpected).to.equal(wallet1Balance);
+    });
 
-  it("Should transfer the correct value", async function () {
-    const [ owner, wallet1 ] = await ethers.getSigners();
-    const Token = await ethers.getContractFactory("CryptoToken", owner);
-    const token = await Token.deploy(480);
-    await token.deployed();
+    it("Should transfer the correct value", async function() {
+        const [owner, wallet1] = await ethers.getSigners();
+        const Token = await ethers.getContractFactory("TokenFullPower", owner);
+        const token = await Token.deploy(480);
+        await token.deployed();
 
-    const ownerBalanceExpected = 480;
-    const transferedValue = 20;
-    const valueMinted = 10;
-    const ownerBalance = await token.balanceOf(owner.address);
-    
-    expect(ownerBalanceExpected).to.equal(ownerBalance);
+        const ownerBalanceExpected = 480;
+        const transferedValue = 20;
+        const valueMinted = 10;
+        const ownerBalance = await token.balanceOf(owner.address);
 
-    const wallet1BalanceExpected = 0;
-    const wallet1Balance = await token.balanceOf(wallet1.address);
+        expect(ownerBalanceExpected).to.equal(ownerBalance);
 
-    expect(wallet1BalanceExpected).to.equal(wallet1Balance);
+        const wallet1BalanceExpected = 0;
+        const wallet1Balance = await token.balanceOf(wallet1.address);
 
-    //Transaction
-    await token.connect(owner).transfer(wallet1.address, transferedValue);
-    
-    const newOwnerBalance = await token.balanceOf(owner.address);
-    const newWallet1Balance = await token.balanceOf(wallet1.address);
+        expect(wallet1BalanceExpected).to.equal(wallet1Balance);
 
-    expect(newOwnerBalance).to.equal(ownerBalanceExpected - transferedValue + valueMinted);
-    expect(newWallet1Balance).to.equal(transferedValue);
-  });
+        //Transaction
+        await token.connect(owner).transfer(wallet1.address, transferedValue);
 
-  it("Should total supply decrease by half owner balance", async function () {
-    const [ owner, wallet1 ] = await ethers.getSigners();
-    const Token = await ethers.getContractFactory("CryptoToken", owner);
-    const token = await Token.deploy(490);
-    await token.deployed();
+        const newOwnerBalance = await token.balanceOf(owner.address);
+        const newWallet1Balance = await token.balanceOf(wallet1.address);
 
-    const transferedValue = 20;
-    const valueMinted = 10;
-    const totalSupply = 490;  
+        expect(newOwnerBalance).to.equal(ownerBalanceExpected - transferedValue + valueMinted);
+        expect(newWallet1Balance).to.equal(transferedValue);
+    });
 
-    //Verifing inicial values
-    const totalSupplyExpected = await token.getTotalSupply();
-    
-    expect(totalSupply).to.equal(totalSupplyExpected);
+    it("Should total supply decrease by half owner balance", async function() {
+        const [owner, ...accounts] = await ethers.getSigners();
+        const Token = await ethers.getContractFactory("TokenFullPower");
+        const token = await Token.deploy(499);
 
-    //---------------Transactions
-    await token.connect(owner).transfer(wallet1.address, transferedValue);
-    const firstTotalSupply = await token.getTotalSupply();
+        await token.deployed();
 
-    //Verifing total supply after first transaction
-    expect(firstTotalSupply).to.equal(totalSupply + valueMinted);
+        const transferedValue = 20;
+        //const valueMinted = 10;
+        const totalSupply = 499;
 
-    //Second Transaction
-    await token.connect(owner).transfer(wallet1.address, transferedValue);
-    const secondTotalSupply = await token.getTotalSupply();
+        //Verifing inicial values
+        const totalSupplyExpected = await token.getTotalSupply();
 
-    //Verifing total supply after second transaction
-    expect(secondTotalSupply).to.equal(totalSupply + valueMinted + valueMinted);
+        expect(totalSupply).to.equal(totalSupplyExpected);
 
-    //Burning Transaction
-    await token.connect(owner).transfer(wallet1.address, transferedValue);
-    const burnTotalSupply = await token.getTotalSupply();
-    const ownerBalance = await token.balanceOf(owner.address);
-    const wallet1Balance = await token.balanceOf(wallet1.address);
-    
-    expect(burnTotalSupply).to.equal(ownerBalance.toNumber() + wallet1Balance.toNumber());
-  });
+
+
+        //---------------Transactions
+        const transfer1 = await token.transfer(accounts[0].address, transferedValue);
+        await transfer1.wait()
+        const firstTotalSupply = await token.getTotalSupply();
+
+        const ownerBalance = await token.balanceOf(owner.address);
+        const wallet1Balance = await token.balanceOf(accounts[0].address);
+
+        console.log(firstTotalSupply)
+        console.log(ownerBalance)
+        console.log(wallet1Balance)
+
+        //Verifing total supply after first transaction
+        expect(firstTotalSupply).to.equal(ownerBalance.toNumber() + wallet1Balance.toNumber());
+
+        //Second Transaction
+
+        await token.connect(owner).transfer(accounts[0].address, transferedValue);
+        const secondTotalSupply = await token.getTotalSupply();
+        //Verifing total supply after second transaction
+        const ownerBalance1 = await token.balanceOf(owner.address);
+        const wallet1Balance1 = await token.balanceOf(accounts[0].address);
+        //expect(secondTotalSupply).to.equal(totalSupply + valueMinted);
+
+        expect(secondTotalSupply).to.equal(ownerBalance1.toNumber() + wallet1Balance1.toNumber());
+
+        //Burning Transaction
+        await token.connect(owner).transfer(accounts[0].address, transferedValue);
+        const burnTotalSupply = await token.getTotalSupply();
+        const ownerBalance2 = await token.balanceOf(owner.address);
+        const wallet1Balance2 = await token.balanceOf(accounts[0].address);
+
+        expect(burnTotalSupply).to.equal(ownerBalance2.toNumber() + wallet1Balance2.toNumber());
+    });
 });
