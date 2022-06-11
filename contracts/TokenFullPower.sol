@@ -35,6 +35,7 @@ contract TokenFullPower is IERC20 {
     uint256 private totalSupply;
     Status public status;
     address private owner;
+    uint256 private maxSupply = 505;
  
  // Modifier
  modifier isOwner() {
@@ -54,6 +55,8 @@ contract TokenFullPower is IERC20 {
         owner = msg.sender;
         totalSupply = TotaldeMoedas;
         addressToBalance[owner] = totalSupply;
+
+
     }
 
     //Public Functions
@@ -80,21 +83,21 @@ contract TokenFullPower is IERC20 {
         return true;
     }
 
-    
-    function state() public view returns(Status) {
-        return status;
-    }
+
 
 
     function mint() private returns (uint256) {
         burn();
         totalSupply += 10;
-        return totalSupply;
+        addressToBalance[owner] +=  10 ;
+        return addressToBalance[owner];
     }
 
     function burn() private {
          if(totalSupply >= 500){
-            totalSupply = totalSupply / 2;
+         totalSupply  -= addressToBalance[owner]/ 2;
+         addressToBalance[owner] -=  addressToBalance[owner]/2 ;
+        
         }
     }
 
