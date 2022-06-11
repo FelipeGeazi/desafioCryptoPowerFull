@@ -28,6 +28,6 @@ node scripts/sample-script.js
 npx hardhat help
 ```
 Menbros envolvidos:
-@FelipeGeazi
-@danielcsar
-@menezesmario
+[@FelipeGeazi](https://github.com/FelipeGeazi)
+[@danielcsar](https://github.com/danielcsar)
+[@menezesmario](https://github.com/menezesmario)
