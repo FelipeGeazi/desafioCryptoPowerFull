@@ -11,7 +11,12 @@ Burn
 A partir de agora tokens podem deixar de existir, tambem afetando o suprimento total de tokens na rede. Para criar o qeuilibrio da rede. Realizamos a função Burn, que consiste na queima de metade do total supply. Todas as vezes que o mesmo ultrapassa a marca de 500 tokens
 
 Pausable
-Negociações e transferencias podem ser pausadas e impedidas de serem feitas por quanto tempo o dono do contrato quiser.
+Negociações e transferencias podem ser pausadas e impedidas de serem feitas por quanto tempo o dono do contrato quiser. Somente serão reativadas as tranferencias mediate a activação do contrato pela função activeCancelled(0).
+
+kill
+Ela requer que o contrato esteja cancelado para ser validada. Após a sua execução, todas as operações serão impedidas de ser concluidas. 
+
+
 
 
 
